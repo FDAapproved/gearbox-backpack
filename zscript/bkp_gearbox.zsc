@@ -4,7 +4,7 @@ enum HDGearMagicNumbers : int
 	BULKFACTOR=INT.max,
 }
 
-const HDLD_GEARBOX = "BOX";
+const HDLD_GEARBOX = "box";
 
 class HDGearBox: HDBackpack
 {
