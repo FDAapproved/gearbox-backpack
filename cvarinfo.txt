@@ -1,0 +1,2 @@
+server int gb_box_spawn_bias = 9;
+// These are server scope so multiplayer games run properly. 

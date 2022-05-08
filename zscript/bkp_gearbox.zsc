@@ -1,0 +1,189 @@
+// So we're not getting INT.max every tic. 
+enum HDGearMagicNumbers : int
+{
+	BULKFACTOR=INT.max,
+}
+
+const HDLD_GEARBOX = "BOX";
+
+class HDGearBox: HDBackpack
+{
+
+		// These are so FAK can edit the bulkfactor (and loadout codes?). 
+		Array<int> CrateStatus;
+		double     bulkmod;
+		default
+		{
+			tag "Gear Box";
+			HDBackpack.MaxCapacity BULKFACTOR;
+			Inventory.Icon "GRCRA0";
+			Inventory.PickupMessage "Picked up a gear box!";
+			scale 0.5;
+			
+			// Makes weapon sounds. 
+			inventory.pickupsound "misc/w_pkup";
+			
+			// Not worn at all.
+			hdweapon.wornlayer 0;
+			hdweapon.refid HDLD_GEARBOX;
+		}
+		
+		// Heavy, but always predictably so.
+		override double WeaponBulk()
+		{
+			double result = 0;
+			
+			// Nullcheck.
+			if(CrateStatus.size())
+			{
+				// Returns normal weight if under the threshold,
+				// Normal weight + excess bulk modified by a percentage after that,
+				// A static value after that. 
+				if(min(CrateStatus[0], Storage.TotalBulk) == CrateStatus[0])
+				{
+					result = CrateStatus[0] + ((Storage.TotalBulk - CrateStatus[0]) * Bulkmod);
+				}
+				else
+				{
+					result = Storage.TotalBulk;
+				}
+			}
+			return result;
+		}
+		
+		
+		
+		override void loadoutconfigure(string input)
+		{
+			// These are grabbed once, since we need to do comparisons with
+			// the values. 
+			
+			// Max of 9999
+			int    newthreshold = GetLoadoutVar(input, "threshold", 4);
+			
+			// "Max" of 999, really is 100
+			double newbulkmod   = GetLoadoutVar(input, "modifier", 3);
+			
+			// Just checks to make sure the value exists. 
+			if(newthreshold != -1)
+			{
+				CrateStatus[0] = newthreshold;
+			}
+			
+			// more or less claps newbulkmod and prevents bad input. 
+			if(newbulkmod <= 100 && newbulkmod >= 1)
+			{
+				Bulkmod  = newbulkmod/100;
+			}
+			else if(newbulkmod > 100)
+			{
+				bulkmod  = 1;
+			}
+		}
+		
+		override void beginplay()
+		{	
+			// Default weight threshold.
+			CrateStatus.push(500);
+			
+			// Default bulk modification. 
+			Bulkmod = 0.25;
+			
+			Super.BeginPlay();
+		}
+
+		override void postbeginplay()
+		{	
+			Super.PostBeginPlay();
+			Storage = New('GearBox_ItemStorage');
+		}
+		
+		override string pickupmessage()
+		{
+			string msg=super.pickupmessage();
+			if(Storage.TotalBulk ~== 0 && !owner)
+			{
+					switch(random(0,6))
+					{
+						case 0:
+							msg = msg.." Best not to look inside too long...";
+							break;
+						case 1:
+							msg = msg.." What a feat of engineering!";
+							break;
+						case 2:
+							msg = msg.." If only you could fit inside.";
+							break;
+						default:
+							break;
+					}
+			}
+			else if(WeaponBulk() <= CrateStatus[0])
+			{
+					switch(random(0,10))
+					{
+						case 0:
+							msg = msg.." It's as ergonomic as it looks...";
+							break;
+						default:
+							break;
+					}
+			}
+			else if(WeaponBulk() >= CrateStatus[0]*2)
+			{
+					switch(random(0,10))
+					{
+						case 0:
+							msg = msg.." A black hole in your pocket.";
+							break;
+						case 1:
+							msg = msg.." You have a serious problem.";
+							break;
+						case 2:
+							msg = msg.." None shall escape it.";
+							break;
+						default:
+							break;
+					}
+			}
+			else if(WeaponBulk() > CrateStatus[0])
+			{
+					switch(random(0,10))
+					{
+						case 0:
+							msg = msg.." It feels warm to the touch.";
+							break;
+						case 1:
+							msg = msg.." Ah, hoard sweet hoard.";
+							break;
+						default:
+							break;
+					}
+			}
+
+			return msg;
+		}
+		
+		override string, double GetPickupSprite() { return "GRCRA0", 1.0; }
+		
+		States
+		{
+			Spawn:
+				GRCR AB -1 NoDelay
+				{
+					if (invoker.Storage.TotalBulk ~== 0)
+					{
+						frame = 0;
+					}
+					else if(target)
+					{
+						translation = target.translation;
+						frame = 1;
+					}
+					invoker.bNO_AUTO_SWITCH = false;
+				}
+				Stop;
+		}
+}
+#include "zscript/bkp_gearbox_itemstorage.zsc"
+#include "zscript/bkp_gearbox_drawhudstuff.zsc"

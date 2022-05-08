@@ -1,0 +1,10 @@
+Mod Credits
+--------------------------------------------------------------------------------
+Reuses assets from Silent Darkness's Gear Crate. 
+Zscript by FDA (mostly pulled from Hideous Destructor). 
+--------------------------------------------------------------------------------
+================================================================================
+Sprite Credits
+--------------------------------------------------------------------------------
+CRTA...B: FDA, Silent Darkness, Dreadopp
+- Heavily edited, added translation frame. 

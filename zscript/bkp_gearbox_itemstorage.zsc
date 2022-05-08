@@ -1,0 +1,71 @@
+class GearBox_ItemStorage : ItemStorage
+{
+
+	// Sly way to make this worse than the normal backpack with minimal code.
+	// I was tempted to make this container just not accept ammo, but that 
+	// seems too mean. 
+	override int GetOperationSpeed(class<Inventory> item, int operation)
+	{
+		return 10;
+	}
+	
+	// (almost) no item left behind. 
+	override int CheckConditions(Inventory item, class<Inventory> cls)
+	{
+		if (item)
+		{
+			let wpn = HDWeapon(item);
+			let arm = HDArmour(item);
+			let mag = HDMagAmmo(item);
+			let pkp = HDPickup(item);
+
+			if(
+				item.bNOINTERACTION
+				||item.bUNDROPPABLE
+				||item.bUNTOSSABLE
+				||(
+					//container that is in use
+					item is 'HDBackpack'
+					&&HDBackpack(item).Storage
+					&&HDBackpack(item).Storage.TotalBulk>0
+				)
+				||(
+				//	//pickup that does not fit in backpack
+				pkp
+					&&!pkp.bFITSINBACKPACK
+				)
+			)return IType_Invalid;
+
+			//some exceptions only apply to weapons
+			if(
+				wpn
+				&&!wpn.bCHEATNOTWEAPON
+			)return IType_Weapon;
+
+			if(arm)return IType_Armour;
+			if(mag)return IType_Mag;
+			if(pkp)return IType_Pickup;
+		}
+		else if (cls)
+		{
+			let dls=GetDefaultByType((class<Inventory>)(cls));
+			let wpn = cls is 'HDWeapon' ? GetDefaultByType((class<HDWeapon>)(cls)) : null;
+			let arm = cls is 'HDArmour' ? GetDefaultByType((class<HDArmour>)(cls)) : null;
+			let mag = cls is 'HDMagAmmo' ? GetDefaultByType((class<HDMagAmmo>)(cls)) : null;
+			let pkp = cls is 'HDPickup' ? GetDefaultByType((class<HDPickup>)(cls)) : null;
+
+			if(dls.bNOINTERACTION||dls.bUNDROPPABLE||
+		dls.bUNTOSSABLE||dls.GetTag()==dls.GetClassName())return IType_Invalid;
+
+			if(wpn&&!wpn.bCHEATNOTWEAPON)return IType_Weapon;
+
+			if(arm)return IType_Armour;
+			if(mag)return IType_Mag;
+			if(pkp)return IType_Pickup;
+		}
+
+		return IType_Invalid;
+	}
+
+
+}

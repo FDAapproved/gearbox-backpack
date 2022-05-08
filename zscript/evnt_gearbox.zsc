@@ -1,0 +1,106 @@
+
+class GearBoxEvent : EventHandler
+{
+
+
+
+	// Inits to false when a map is first loaded. 
+	private bool cvarsAvailable;
+	
+	
+	
+	// Could these be in a list? Probably,
+	// but the cvars already take up unique names.
+	private int boxSpawnBiasActual;
+	
+	
+	
+	// Shoves cvar values into their non-cvar shaped holes.
+	// I have no idea why names for cvars become reserved here.
+	// But, this works. So no complaints. 
+	void init()
+	{
+		cvarsAvailable = true;
+		boxSpawnBiasActual    = gb_box_spawn_bias;
+	}
+
+
+
+	// 'Initalizes' the event handler,
+	// In my testing, this is called after events are fired. 
+	override void WorldLoaded(WorldEvent e)
+	{
+		// always calls init anyways. It's what other worldloaded's do. 
+		init();
+		super.WorldLoaded(e);
+	}
+
+
+
+	// Randomizer function, uses one cvar per spawn rate. 
+	bool giverandom(int chance)
+	{
+		bool result = false;
+		
+		
+		// temp storage for the random value. 
+		int iii = random(0, chance);
+
+
+		// Checks to see if the cvar is disabled. 
+		if (iii < 1)
+		{
+			// Zero is true, anything else is false. 
+			if(chance > -1)
+				result = true;
+		}
+		
+		return result;
+	}
+	
+	
+	
+	// 
+	override void WorldThingSpawned(WorldEvent e)
+	{ 
+		// Makes sure the values are always loaded before
+		// taking in events.
+		if(!cvarsAvailable)
+			init();
+		
+		// in case it's not real. 
+		if(!e.Thing)
+		{
+			return;
+		}
+		else
+		{
+			// In case the thing in question is owned by someone.
+			// We check for this since a variable like e.isfinal
+			// doesn't exist for worldthingspawned :(
+			if(e.Thing is "Inventory" && Inventory(e.Thing).Owner)
+			{
+				return;
+			}
+			
+			// Don't spawn anything if the level has been loaded more than a tic.
+			if (!(level.maptime > 1))
+			{
+				if(e.thing is "HDBackpack")
+				{
+					// Don't spawn ontop of another gearbox. 
+					if(!(e.thing is "HDGearBox"))
+					{
+						if(giverandom(boxSpawnBiasActual))
+						{
+							let aaa = HDGearBox(Actor.Spawn('HDGearBox', (e.Thing.pos.x, e.Thing.pos.y, e.Thing.pos.z + 5)));
+							aaa.vel.x += frandom[huminahumina](-2,2);
+							aaa.vel.y += frandom[huminahumina](-2,2);
+							aaa.vel.z += frandom[huminahumina](1,2);
+						}
+					}
+				}
+			}	
+		}
+	}
+}
