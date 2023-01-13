@@ -6,11 +6,12 @@ Zscript by FDA (mostly pulled from Hideous Destructor).
 ================================================================================
 Maintenance Credits
 --------------------------------------------------------------------------------
-Undead Zeratul: IType_Armour Fix,
+Undead Zeratul: IType_Armour Fix, refid uppercase fix,
 - merge from pull request,
--  https://github.com/FDAapproved/gearbox-backpack/pull/1
+- https://github.com/FDAapproved/gearbox-backpack/pull/1
 
-- A1337spy: refid conflict resolution (conflicted with Peppergrinder). 
+- A1337spy: refid conflict resolution (conflicted with Peppergrinder),
+- implemented in Peppergrinder.
 ================================================================================
 Sprite Credits
 --------------------------------------------------------------------------------
