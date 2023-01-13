@@ -15,7 +15,6 @@ class GearBox_ItemStorage : ItemStorage
 		if (item)
 		{
 			let wpn = HDWeapon(item);
-			let arm = HDArmour(item);
 			let mag = HDMagAmmo(item);
 			let pkp = HDPickup(item);
 
@@ -28,9 +27,8 @@ class GearBox_ItemStorage : ItemStorage
 					item is 'HDBackpack'
 					&&HDBackpack(item).Storage
 					&&HDBackpack(item).Storage.TotalBulk>0
-				)
-				||(
-				//	//pickup that does not fit in backpack
+				)||(
+					//pickup that does not fit in backpack
 				pkp
 					&&!pkp.bFITSINBACKPACK
 				)
@@ -42,7 +40,6 @@ class GearBox_ItemStorage : ItemStorage
 				&&!wpn.bCHEATNOTWEAPON
 			)return IType_Weapon;
 
-			if(arm)return IType_Armour;
 			if(mag)return IType_Mag;
 			if(pkp)return IType_Pickup;
 		}
@@ -50,7 +47,6 @@ class GearBox_ItemStorage : ItemStorage
 		{
 			let dls=GetDefaultByType((class<Inventory>)(cls));
 			let wpn = cls is 'HDWeapon' ? GetDefaultByType((class<HDWeapon>)(cls)) : null;
-			let arm = cls is 'HDArmour' ? GetDefaultByType((class<HDArmour>)(cls)) : null;
 			let mag = cls is 'HDMagAmmo' ? GetDefaultByType((class<HDMagAmmo>)(cls)) : null;
 			let pkp = cls is 'HDPickup' ? GetDefaultByType((class<HDPickup>)(cls)) : null;
 
@@ -59,7 +55,6 @@ class GearBox_ItemStorage : ItemStorage
 
 			if(wpn&&!wpn.bCHEATNOTWEAPON)return IType_Weapon;
 
-			if(arm)return IType_Armour;
 			if(mag)return IType_Mag;
 			if(pkp)return IType_Pickup;
 		}
